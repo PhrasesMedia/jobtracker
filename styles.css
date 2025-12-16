@@ -91,7 +91,6 @@ input:focus, select:focus, textarea:focus{border-color:#3a4a7a}
 .btn.danger:hover{filter:brightness(1.08)}
 .btn.small{padding:7px 10px; font-size:12px}
 
-/* ✅ for Called / eMailed state */
 .btn:disabled{
   opacity: 0.55;
   cursor: not-allowed;
@@ -140,7 +139,6 @@ input:focus, select:focus, textarea:focus{border-color:#3a4a7a}
 }
 .list-controls input, .list-controls select{width:auto; min-width:190px}
 
-/* Today's actions bar */
 .actions{
   display:flex;
   gap:10px;

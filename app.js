@@ -82,10 +82,21 @@ function normalizePhone(v) {
   return (v || "").trim().replace(/[^\d+]/g, "");
 }
 
+function firstNameLike(name) {
+  const n = (name || "").trim();
+  if (!n) return "";
+  // If they type "Karen Lewis", we use "Karen"
+  return n.split(/\s+/)[0].trim();
+}
+
+// ✅ NO "Re:" and greeting uses Contact name if present
 function buildMailto(email, job) {
-  const subject = `Re: ${job.title || "Role"}${job.company ? " - " + job.company : ""}`;
+  const subject = `${job.title || "Role"}${job.company ? " - " + job.company : ""}`;
+  const greetName = firstNameLike(job.contactName);
+  const greeting = greetName ? `Hi ${greetName},` : "Hi,";
+
   const body =
-`Hi,
+`${greeting}
 
 I'm following up regarding the ${job.title || "role"}${job.company ? " at " + job.company : ""}.
 
@@ -112,6 +123,9 @@ function loadJobs() {
       if (!("posterMobile" in j)) j.posterMobile = "";
       if (!("posterMobileRaw" in j)) j.posterMobileRaw = j.posterMobile || "";
       if (!("createdAt" in j)) j.createdAt = Date.now();
+      if (typeof j.notes !== "string") j.notes = j.notes ? String(j.notes) : "";
+      // ✅ NEW field
+      if (!("contactName" in j)) j.contactName = "";
     }
 
     return arr;
@@ -174,6 +188,9 @@ jobForm.addEventListener("submit", (e) => {
   const company = document.getElementById("company").value.trim();
   const url = document.getElementById("url").value.trim();
 
+  // ✅ NEW
+  const contactName = document.getElementById("contactName").value.trim();
+
   const posterEmail = normalizeEmail(document.getElementById("posterEmail").value);
   const posterMobileRaw = document.getElementById("posterMobile").value.trim();
   const posterMobile = normalizePhone(posterMobileRaw);
@@ -188,6 +205,7 @@ jobForm.addEventListener("submit", (e) => {
     title,
     company,
     url,
+    contactName,         // ✅ NEW
     posterEmail,
     posterMobile,
     posterMobileRaw,
@@ -245,7 +263,7 @@ function getViewJobs() {
 
   if (q) {
     out = out.filter(j => {
-      const hay = `${j.title} ${j.company} ${j.notes} ${j.posterEmail || ""} ${j.posterMobileRaw || ""}`.toLowerCase();
+      const hay = `${j.title} ${j.company} ${j.notes} ${j.contactName || ""} ${j.posterEmail || ""} ${j.posterMobileRaw || ""}`.toLowerCase();
       return hay.includes(q);
     });
   }
@@ -412,12 +430,17 @@ function renderJobs(view) {
     const email = (j.posterEmail || "").trim();
     const phoneDisplay = (j.posterMobileRaw || "").trim();
     const phoneTel = (j.posterMobile || "").trim();
+    const contactName = (j.contactName || "").trim();
 
-    const contactLine = (email || phoneDisplay)
-      ? `<div>Contact: <strong>${email ? escapeHtml(email) : ""}${email && phoneDisplay ? " · " : ""}${phoneDisplay ? escapeHtml(phoneDisplay) : ""}</strong></div>`
+    const contactBits = [];
+    if (contactName) contactBits.push(escapeHtml(contactName));
+    if (email) contactBits.push(escapeHtml(email));
+    if (phoneDisplay) contactBits.push(escapeHtml(phoneDisplay));
+
+    const contactLine = contactBits.length
+      ? `<div>Contact: <strong>${contactBits.join(" · ")}</strong></div>`
       : "";
 
-    // ✅ Buttons placed to the right of Delete
     const emailActionBtn = email ? `
       <button class="btn ghost emailBtn" data-id="${escapeAttr(j.id)}" type="button" ${j.emailed ? "disabled" : ""}>
         ${j.emailed ? "eMailed" : "Send email"}
@@ -458,6 +481,7 @@ function renderJobs(view) {
         </select>
 
         <button class="btn ghost followBtn" data-id="${escapeAttr(j.id)}" type="button">Follow-up +7d</button>
+        <button class="btn ghost editNotesBtn" data-id="${escapeAttr(j.id)}" type="button">Edit notes</button>
         <button class="btn ghost editBtn" data-id="${escapeAttr(j.id)}" type="button">Edit</button>
         <button class="btn danger delBtn" data-id="${escapeAttr(j.id)}" type="button">Delete</button>
 
@@ -498,6 +522,22 @@ function renderJobs(view) {
     });
   });
 
+  // quick notes edit
+  jobsEl.querySelectorAll(".editNotesBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const job = jobs.find(x => x.id === id);
+      if (!job) return;
+
+      const updated = prompt("Edit notes:", job.notes || "");
+      if (updated === null) return;
+
+      job.notes = updated.trim();
+      saveJobs();
+      render();
+    });
+  });
+
   jobsEl.querySelectorAll(".delBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -517,6 +557,10 @@ function renderJobs(view) {
       const newTitle = prompt("Job title:", job.title) ?? job.title;
       const newCompany = prompt("Company/Agency:", job.company || "") ?? (job.company || "");
       const newUrl = prompt("Job link:", job.url || "") ?? (job.url || "");
+
+      // ✅ NEW prompt
+      const newContactName = prompt("Contact name:", job.contactName || "") ?? (job.contactName || "");
+
       const newEmail = prompt("Poster email:", job.posterEmail || "") ?? (job.posterEmail || "");
       const newMobile = prompt("Poster mobile:", job.posterMobileRaw || "") ?? (job.posterMobileRaw || "");
       const newApplied = prompt("Applied date (YYYY-MM-DD):", job.appliedDate || "") ?? (job.appliedDate || "");
@@ -527,6 +571,8 @@ function renderJobs(view) {
       job.company = newCompany.trim();
       job.url = newUrl.trim();
 
+      job.contactName = newContactName.trim(); // ✅ NEW
+
       job.posterEmail = normalizeEmail(newEmail);
       job.posterMobileRaw = newMobile.trim();
       job.posterMobile = normalizePhone(job.posterMobileRaw);
@@ -535,7 +581,6 @@ function renderJobs(view) {
       job.followUpDate = newFollow.trim();
       job.notes = newNotes.trim();
 
-      // avoid “Called/eMailed” with no contact
       if (!job.posterEmail) job.emailed = false;
       if (!job.posterMobile) job.called = false;
 
@@ -544,7 +589,7 @@ function renderJobs(view) {
     });
   });
 
-  // ✅ Send email -> eMailed
+  // Send email -> eMailed (no "Re:" and greeting uses contact name)
   jobsEl.querySelectorAll(".emailBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -559,7 +604,7 @@ function renderJobs(view) {
     });
   });
 
-  // ✅ Call -> Called
+  // Call -> Called
   jobsEl.querySelectorAll(".callBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -624,7 +669,6 @@ importInput.addEventListener("change", async () => {
     if (payload.jobs && Array.isArray(payload.jobs)) {
       jobs = payload.jobs;
 
-      // defaults for imported old exports
       for (const j of jobs) {
         if (typeof j.emailed !== "boolean") j.emailed = false;
         if (typeof j.called !== "boolean") j.called = false;
@@ -632,6 +676,8 @@ importInput.addEventListener("change", async () => {
         if (!("posterMobile" in j)) j.posterMobile = "";
         if (!("posterMobileRaw" in j)) j.posterMobileRaw = j.posterMobile || "";
         if (!("createdAt" in j)) j.createdAt = Date.now();
+        if (typeof j.notes !== "string") j.notes = j.notes ? String(j.notes) : "";
+        if (!("contactName" in j)) j.contactName = ""; // ✅ NEW
       }
 
       saveJobs();
