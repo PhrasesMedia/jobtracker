@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div>
+        <h1>Job Tracker</h1>
+        <p class="sub">Track what you’ve applied for. Stay on top of follow-ups.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="exportBtn" class="btn">Export JSON</button>
+        <label class="btn ghost">
+          Import JSON
+          <input id="importInput" type="file" accept="application/json" hidden />
+        </label>
+        <button id="clearBtn" class="btn danger">Clear All</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap grid">
+    <!-- LEFT: Add job -->
+    <section class="card">
+      <h2>Add a job</h2>
+
+      <form id="jobForm" class="form">
+        <div class="row">
+          <label>
+            Job title
+            <input id="title" type="text" placeholder="Lead Business Analyst" required />
+          </label>
+          <label>
+            Company / Agency
+            <input id="company" type="text" placeholder="Parliament of NSW" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="grow">
+            Job link
+            <input id="url" type="url" placeholder="https://…" />
+          </label>
+        </div>
+
+        <!-- Poster contact -->
+        <div class="row">
+          <label>
+            Poster email
+            <input id="posterEmail" type="email" placeholder="name@example.com" />
+          </label>
+          <label>
+            Poster mobile
+            <input id="posterMobile" type="tel" placeholder="04xx xxx xxx" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Status
+            <select id="status">
+              <option value="Saved">Saved</option>
+              <option value="Applied" selected>Applied</option>
+              <option value="Interview">Interview</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Withdrawn">Withdrawn</option>
+            </select>
+          </label>
+
+          <label>
+            Date applied
+            <input id="appliedDate" type="date" />
+          </label>
+
+          <label>
+            Follow-up date
+            <input id="followUpDate" type="date" />
+          </label>
+        </div>
+
+        <label>
+          Notes
+          <textarea id="notes" rows="3" placeholder="Anything important…"></textarea>
+        </label>
+
+        <button class="btn primary" type="submit">Add job</button>
+      </form>
+
+      <hr class="sep" />
+
+      <h3>Quick links + checklist</h3>
+      <div class="links">
+        <a class="chip" href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a class="chip" href="https://www.seek.com.au" target="_blank" rel="noreferrer">Seek</a>
+        <a class="chip" href="https://iworkfor.nsw.gov.au" target="_blank" rel="noreferrer">iWorkforNSW</a>
+      </div>
+
+      <div class="checklist">
+        <div class="check-row">
+          <label class="check">
+            <input type="checkbox" data-check="linkedin" />
+            Update LinkedIn profile (headline, summary, “Open to work”)
+          </label>
+        </div>
+        <div class="check-row">
+          <label class="check">
+            <input type="checkbox" data-check="seek" />
+            Update Seek profile + saved searches
+          </label>
+        </div>
+        <div class="check-row">
+          <label class="check">
+            <input type="checkbox" data-check="iwork" />
+            Update iWorkforNSW profile (answers / eligibility)
+          </label>
+        </div>
+
+        <div class="meta">
+          <span id="lastUpdatedText">Last checklist update: never</span>
+          <button id="resetChecklistBtn" class="btn small ghost" type="button">Reset weekly</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Job list -->
+    <section class="card">
+      <div class="list-head">
+        <h2>Your jobs</h2>
+
+        <div class="list-controls">
+          <input id="search" type="search" placeholder="Search title/company/notes…" />
+          <select id="filterStatus">
+            <option value="All">All statuses</option>
+            <option value="Saved">Saved</option>
+            <option value="Applied">Applied</option>
+            <option value="Interview">Interview</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Withdrawn">Withdrawn</option>
+          </select>
+          <select id="sortBy">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="followupSoon">Follow-up soon</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="actionsBar" class="actions"></div>
+      <div id="stats" class="stats"></div>
+
+      <div id="jobs" class="jobs"></div>
+      <p id="empty" class="empty">No jobs yet. Add one on the left.</p>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>Data stays in your browser (localStorage). No login needed.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
