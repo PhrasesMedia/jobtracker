@@ -27,6 +27,52 @@
   <main class="wrap grid">
     <!-- LEFT: Add job -->
     <section class="card">
+
+      <!-- PROFILE -->
+      <h2>Your profile</h2>
+      <div class="form">
+        <div class="row">
+          <label class="grow">
+            Your name
+            <input id="profileName" type="text" placeholder="Your full name" />
+          </label>
+          <label class="grow">
+            Your email (optional, for CC)
+            <input id="profileEmail" type="email" placeholder="you@email.com" />
+          </label>
+        </div>
+        <div class="row">
+          <button id="saveProfileBtn" class="btn small ghost" type="button">Save profile</button>
+          <span id="profileSavedText" class="muted tiny"></span>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <!-- CV LIBRARY -->
+      <h2>CV library</h2>
+      <div class="form">
+        <div class="row">
+          <label class="grow">
+            CV name
+            <input id="cvName" type="text" placeholder="Senior BA CV" />
+          </label>
+          <label class="grow">
+            File (PDF/DOC/DOCX)
+            <input id="cvFile" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+          </label>
+        </div>
+        <div class="row">
+          <button id="addCvBtn" class="btn ghost" type="button">Add CV</button>
+          <span id="cvHint" class="muted tiny">Stored locally in your browser (IndexedDB).</span>
+        </div>
+      </div>
+
+      <div id="cvList" class="cv-list"></div>
+
+      <hr class="sep" />
+
+      <!-- ADD JOB -->
       <h2>Add a job</h2>
 
       <form id="jobForm" class="form">
@@ -48,7 +94,7 @@
           </label>
         </div>
 
-        <!-- ✅ Contact details (NOW includes Contact name) -->
+        <!-- contact details -->
         <div class="row">
           <label>
             Contact name
@@ -65,6 +111,13 @@
         </div>
 
         <div class="row">
+          <label class="grow">
+            CV used (optional)
+            <select id="cvUsed">
+              <option value="">None</option>
+            </select>
+          </label>
+
           <label>
             Status
             <select id="status">
@@ -165,7 +218,7 @@
   </main>
 
   <footer class="wrap footer">
-    <p>Data stays in your browser (localStorage). No login needed.</p>
+    <p>Data stays in your browser. Jobs/checklist/profile use localStorage. CV files use IndexedDB.</p>
   </footer>
 
   <script src="app.js"></script>

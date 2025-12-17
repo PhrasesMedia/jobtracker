@@ -7,8 +7,6 @@
   --line:#252a36;
   --btn:#22283a;
   --btn2:#2a3248;
-  --good:#1a7f37;
-  --warn:#b35c00;
   --bad:#b42318;
   --accent:#5b8cff;
 }
@@ -232,3 +230,32 @@ input:focus, select:focus, textarea:focus{border-color:#3a4a7a}
 
 .empty{color:var(--muted); margin-top:10px}
 .footer{color:var(--muted); font-size:12px; padding-bottom:30px}
+
+.muted{color:var(--muted)}
+.tiny{font-size:12px}
+
+/* CV list */
+.cv-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+.cv-item{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#0b0d13;
+}
+.cv-name{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.cv-name strong{font-size:13px}
+.cv-name span{font-size:12px; color:var(--muted)}
+.cv-actions{display:flex; gap:8px; flex-wrap:wrap}
